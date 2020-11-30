@@ -1,7 +1,7 @@
 export const cartesianProduct = <T,>(...sets: T[][]) =>
   sets.reduce<T[][]>((accSets, set) => accSets.flatMap(accSet => set.map(value => [...accSet, value])), [[]]);
 
-export const permutator = <T>(inputArr: T[]): T[][] => {
+export const permutations = <T>(inputArr: T[]): T[][] => {
   let result: T[][] = [];
 
   const permute = (arr: T[], m = []) => {
