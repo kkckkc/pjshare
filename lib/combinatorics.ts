@@ -5,7 +5,7 @@ export const cartesianProduct = <T>(...sets: T[][]) =>
 
 export const cartesianProductIncreasing = <T>(...sets: T[][]) =>
   sets.reduce<T[][]>((accSets, set) => accSets.flatMap(accSet => set
-    .filter(value => accSet.length === 0 ? true : value > accSet[accSet.length - 1])
+    .filter(value => accSet.length === 0 || value > accSet[accSet.length - 1])
     .map(value => [...accSet, value])), [[]]);
 
 export const nTuples = <T>(arr: T[], n: number, type: 'all' | 'unique' | 'increasing'): T[][] => {
