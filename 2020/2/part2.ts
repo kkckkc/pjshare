@@ -1,7 +1,4 @@
-import { assertEquals } from '../../lib/assert';
 import { readFile } from '../../lib/readFile';
-import { range, fill } from '../../lib/arrays';
-import { cartesianProduct, nTuples} from '../../lib/combinatorics';
 
 type Input = {
   values: {
@@ -21,7 +18,7 @@ export const parse = (input: string[]): Input => {
 
 export const solve = (input: Input): string => {
   const isOk = (v: { from: number; to: number; character: string; password: string; }): boolean => {
-    const chars = v.password.split('');
+    const chars = Array.from(v.password);
     return (chars[v.from - 1] === v.character) != (chars[v.to - 1] === v.character);
   };
 
