@@ -36,8 +36,5 @@
     "**/dist/**/*.js",
     "babel.config.js",
     "webpack.*.js"
-  ],
-  "include": [
-    "**/*"
   ]
 }
