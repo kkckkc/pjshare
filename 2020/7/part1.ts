@@ -1,18 +1,15 @@
 import { readFile } from '../../lib/readFile';
 import { Edge, Graph, GraphFactory, Graphs } from 'lib/graph';
+import { Strings } from 'lib/strings';
 
 type Input = {
   values: Edge[]
 };
 
 const parseLine = (s: string) => {
-  const a = s.split(/bags?/)
-    .filter(e => e !== '.')
-    .filter(e => e.indexOf('no other') < 0)
-    .map(e => e.replace(/,|contain/, ''))
-    .map(e => e.trim())
-
-  return a.slice(1).map(e => ({ from: a[0], to: e.replace(/^[0-9]+ /, ''), weight: Number(e.split(' ')[0]) }));
+  return Strings.extract(s, /^(.*) bags contain ([0-9].*)\.$/, 
+    ([from, to]) => to.split(',').map(e => Strings.extract(e, /([0-9]+) (.*) bags?/, 
+        ([weight, to]) => ({ from, to, weight: Number(weight) }))!)) ?? [];
 }
 
 export const parse = (input: string[]): Input => {
