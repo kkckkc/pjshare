@@ -1,70 +1,43 @@
-import { assertEquals } from '../../lib/assert';
 import { readFile } from '../../lib/readFile';
-import { range } from '../../lib/arrays';
-import { cartesianProduct, nTuples} from '../../lib/combinatorics';
+import { Edge, Graph, GraphFactory } from 'lib/graph';
 
 type Input = {
-  values: {
-    from: string,
-    to: string[],
-    toCount: number[]
-  }[]
+  values: Edge[]
 };
 
 const parseLine = (s: string) => {
   const a = s.split(/bags?/)
     .filter(e => e !== '.')
     .filter(e => e.indexOf('no other') < 0)
-    .map(e => e.replace(',', ''))
-    .map(e => e.replace('contain', ''))
+    .map(e => e.replace(/,|contain/, ''))
     .map(e => e.trim())
 
-  return {
-    from: a[0],
-    to: a.slice(1).map(e => e.replace(/^[0-9]+ /, '')),
-    toCount: a.slice(1).map(e => Number(e.split(' ')[0])),
-  }
+  return a.slice(1).map(e => ({ from: a[0], to: e.replace(/^[0-9]+ /, ''), weight: Number(e.split(' ')[0]) }));
 }
 
-const count = (graph: Record<string, string[]>, weight: Record<string, number>, start: string) => {
-  type Entry = { node: string, multiplier: number };
-
-  let current: Entry[] = [ { node: start, multiplier: 1 } ];
+const count = (graph: Graph, start: string) => {
+  let current = [ { node: start, multiplier: 1 } ];
 
   let count = 0;
 
   while (current.length > 0) {
-    const c = current[0];
-    current = current.slice(1);
-
+    const c = current.pop()!;
     count += c.multiplier;
 
-    for (const t of graph[c.node]) {
-      current.push({ node: t, multiplier: c.multiplier * weight[`${c.node}~${t}`]});
-    }
+    graph[c.node]?.forEach(t => current.push({ node: t.to, multiplier: c.multiplier * t.weight}));
   }
 
   return count - 1;
 }
 
-type Edge = { to: string, weight: number };
-
 export const parse = (input: string[]): Input => {
-  return { values: input.map(parseLine) };
+  return { values: input.flatMap(parseLine) };
 }
 
 export const solve = (input: Input): number => {
-  const graph: Record<string, string[]> = {};
-  const weight: Record<string, number> = {};
+  const graph: Graph = GraphFactory.fromList(input.values);
 
-  for (const e of input.values) {
-    graph[e.from] = [...(graph[e.from] ?? []), ...e.to];
-    for (let i = 0; i < e.to.length; i++) {
-      weight[`${e.from}~${e.to[i]}`] = e.toCount[i];
-    }
-  }
-
-  return count(graph, weight, 'shiny gold');
+  return count(graph, 'shiny gold');
 }
 
 
