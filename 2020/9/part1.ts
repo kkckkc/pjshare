@@ -1,4 +1,4 @@
-import { readFile } from '../../lib/readFile';
+import { readFile } from 'lib/readFile';
 
 type Input = number[];
 

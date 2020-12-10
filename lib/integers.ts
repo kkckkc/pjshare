@@ -7,3 +7,7 @@ export const toDigitArray = (a: number) => {
   dest.push(a);
   return dest.reverse();
 }
+
+export const Integers = {
+  max: 1 << 30
+}

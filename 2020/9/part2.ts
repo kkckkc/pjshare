@@ -1,4 +1,5 @@
-import { readFile } from '../../lib/readFile';
+import { Integers } from 'lib/integers';
+import { readFile } from 'lib/readFile';
 
 type Input = {
   values: number[]
@@ -13,7 +14,7 @@ const target = 27911108;
 export const solve = (input: Input): number => {
   for (let i = 0; i < input.values.length; i++) {
     let sum = 0;
-    let min = 10000000000;
+    let min = Integers.max;
     let max = 0;
     for (let j = i; j < input.values.length; j++) {
       sum += input.values[j];
