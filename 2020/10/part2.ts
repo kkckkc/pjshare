@@ -1,3 +1,6 @@
+import { range } from 'lib/arrays';
+import { Integers } from 'lib/integers';
+import { memoize } from 'lib/memoize';
 import { readFile } from '../../lib/readFile';
 
 type Input = {
@@ -8,9 +11,27 @@ export const parse = (input: string[]): Input => {
   return { values: input.map(i => Number.parseInt(i)) };
 }
 
+
+const numberOfWays = (arr: number[]): number => {
+  let memo: Record<number, number> = {};
+  const numberOfWays = memoize(memo, (arr: number[]) => arr.length, 
+    (arr: number[]): number => {
+      if (arr.length === 1) return 1;
+      return range(1, 3)
+        .map(a => arr[a] && arr[a] - arr[0] <= 3 ? numberOfWays(arr.slice(a)) : 0)
+        .reduce((acc, c) => acc + c, 0);
+    }
+  );
+  return numberOfWays(arr);
+}
+
+
+
 export const solve = (input: Input): number => {
   const arr = [0, ...input.values.sort((a, b) => a - b)];
 
+  return numberOfWays(arr);
+/*
   const numberOfWays = []; 
 
   for (let idx = arr.length - 2; idx >= 0; idx--) {
@@ -21,7 +42,7 @@ export const solve = (input: Input): number => {
     numberOfWays[idx] = sum;
   }
 
-  return numberOfWays[0];
+  return numberOfWays[0];*/
 }
 
 
