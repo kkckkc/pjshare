@@ -1,7 +1,5 @@
-import { assertEquals } from '../../lib/assert';
 import { readFile } from '../../lib/readFile';
-import { range } from '../../lib/arrays';
-import { cartesianProduct, nTuples} from '../../lib/combinatorics';
+import { Grids } from 'lib/grid';
 
 type Input = {
   values: string[][],
@@ -12,14 +10,11 @@ export const parse = (input: string[]): Input => {
   return { values: input.map(i => i.split('')), colCount: input[0].length };
 }
 
-const clone = (v: string[][]) => v.map(e => e.slice(0));
-
 const findFirst = (arr: string[][], row: number, col: number, rowD: number, colD: number): string | undefined => {
   let r = row + rowD;
   let c = col + colD;
 
   while (arr[r]?.[c] !== undefined) {
-//    console.log(r, c, arr[r]?.[c]);
     if (arr[r]?.[c] !== '.') return arr[r]?.[c];
     r += rowD;
     c += colD;
@@ -29,36 +24,28 @@ const findFirst = (arr: string[][], row: number, col: number, rowD: number, colD
 }
 
 export const solve = (input: Input): number => {
-  let changed = false;
+  let changed;
   let current = input.values;
   do {
     changed = false;
     
-//    console.log('--------------------------------------------');    
-//    console.log(current.map(e => e.join('')).join('\n'));
+    const dest = Grids.clone(current); 
 
-    const dest = clone(current); 
-
-    for (let col = 0; col < input.colCount; col++) {
-      for (let row = 0; row < input.values.length; row++) {
-        let adjacent = [ 
-          findFirst(current, row, col, -1, -1), findFirst(current, row, col, -1, 0), findFirst(current, row, col, -1, +1),
-          findFirst(current, row, col, 0, -1), /*findFirst(current, row, col, 0, 0), */findFirst(current, row, col, 0, +1),
-          findFirst(current, row, col, 1, -1), findFirst(current, row, col, 1, 0), findFirst(current, row, col, 1, +1)];
-        if (current[row][col] === 'L' && adjacent.filter(e => e === '#').length === 0) {
-          dest[row][col] = '#';
-          changed = true;
-        } else if (current[row][col] === '#' && adjacent.filter(e => e === '#').length >= 5) {
-          dest[row][col] = 'L';
-          changed = true;
-        }
+    Grids.forEach(current, (v, grid, row, col) => {
+      let adjacent = Grids.adjacent().map(([rd, cd]) => findFirst(grid, row, col, rd, cd)); 
+      if (v === 'L' && adjacent.filter(e => e === '#').length === 0) {
+        dest[row][col] = '#';
+        changed = true;
+      } else if (v === '#' && adjacent.filter(e => e === '#').length >= 5) {
+        dest[row][col] = 'L';
+        changed = true;
       }
-    }
+    })
 
     current = dest;
   } while (changed);
 
-  return current.map(e => e.join('')).join('').split('').filter(e => e === '#').length;
+  return Grids.toString(current).filter(e => e === '#').length;
 }
 
 console.log(solve(parse(`L.LL.LL.LL
