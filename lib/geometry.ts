@@ -67,7 +67,17 @@ export const Vectors = {
       default:
         throw new Error(`Unknown direction ${s[0]}`);
     }
-  }
+  },
+
+  rotate: (v: Vector, theta: number): Vector => {
+    const thetaRadians = (theta / 180) * Math.PI;
+    return {
+      x: v.x * Math.cos(thetaRadians) - v.y * Math.sin(thetaRadians),
+      y: v.x * Math.sin(thetaRadians) + v.y * Math.cos(thetaRadians)
+    }
+  },
+
+  round: (v: Vector): Vector => ({ x: Math.round(v.x), y: Math.round(v.y) })
 }
 
 

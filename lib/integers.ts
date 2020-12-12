@@ -9,5 +9,8 @@ export const toDigitArray = (a: number) => {
 }
 
 export const Integers = {
-  max: 1 << 30
+  max: 1 << 30,
+  mod: (a: number, n: number) => { 
+    return ((a%n)+n)%n;
+  }
 }
