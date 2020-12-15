@@ -1,7 +1,5 @@
-import { assertEquals } from '../../lib/assert';
+import { range } from 'lib/arrays';
 import { readFile } from '../../lib/readFile';
-import { range } from '../../lib/arrays';
-import { cartesianProduct, nTuples} from '../../lib/combinatorics';
 
 type Input = {
   values: number[]
@@ -11,36 +9,26 @@ export const parse = (input: string[]): Input => {
   return { values: input[0].split(',').map(i => Number.parseInt(i)) };
 }
 
-const findLastIndex = (arr: number[], target: number, start: number) => {
-  for (let i = (arr.length - 1 - start); i >= 0; i--) {
-    if (arr[i] === target) return i;
-  }
-  return undefined;
-}
-
-
 export const solve = (input: Input): number => {
-  const lastPosition: Map<number, number[]> = new Map<number, number[]>();
+  const lastPosition: Map<number, number> = new Map<number, number>();
 
   for (let i = 0; i < input.values.length; i++) {
-    lastPosition.set(input.values[i], [-1, i]);
+    lastPosition.set(input.values[i], i);
   }
 
   let last = input.values[input.values.length - 1];
-  let lp = lastPosition.get(last)!;
+  let lp = -1;
   for (let i = input.values.length; i < 30000000; i++) {
-    let [p, l] = lp;
+    //if (i % 1000000 === 0) console.log(i, last, Object.keys(lastPosition).length);
 
-    if (i % 1000000 === 0) console.log(i, last, Object.keys(lastPosition).length);
-
-    if (p != -1) {
-      last = i - 1 - p;
+    if (lp != -1) {
+      last = i - 1 - lp;
     } else {
       last = 0;
     }
-    const [_, b] = (lastPosition.has(last) ? lastPosition.get(last) : [-1, -1])!;
-    lp = [b, i];
-    lastPosition.set(last, lp);
+    const b = (lastPosition.has(last) ? lastPosition.get(last) : -1)!;
+    lp = b;
+    lastPosition.set(last, i);
   }
 
   return last;
