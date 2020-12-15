@@ -20,15 +20,16 @@ const findLastIndex = (arr: number[], target: number, start: number) => {
 
 
 export const solve = (input: Input): number => {
-  const lastPosition: Record<number, number[]> = {};
+  const lastPosition: Map<number, number[]> = new Map<number, number[]>();
 
   for (let i = 0; i < input.values.length; i++) {
-    lastPosition[input.values[i]] = [-1, i];
+    lastPosition.set(input.values[i], [-1, i]);
   }
 
   let last = input.values[input.values.length - 1];
-  for (let i = input.values.length; i < 4000000; i++) {
-    let [p, l] = lastPosition[last];
+  let lp = lastPosition.get(last)!;
+  for (let i = input.values.length; i < 30000000; i++) {
+    let [p, l] = lp;
 
     if (i % 1000000 === 0) console.log(i, last, Object.keys(lastPosition).length);
 
@@ -37,8 +38,9 @@ export const solve = (input: Input): number => {
     } else {
       last = 0;
     }
-    const [_, b] = lastPosition[last] ?? [-1, -1];
-    lastPosition[last] = [b, i];
+    const [_, b] = (lastPosition.has(last) ? lastPosition.get(last) : [-1, -1])!;
+    lp = [b, i];
+    lastPosition.set(last, lp);
   }
 
   return last;
