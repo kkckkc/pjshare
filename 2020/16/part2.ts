@@ -1,7 +1,4 @@
-import { assertEquals } from '../../lib/assert';
 import { readFile } from '../../lib/readFile';
-import { range } from '../../lib/arrays';
-import { cartesianProduct, nTuples} from '../../lib/combinatorics';
 
 type Field = {
   name: string,
@@ -13,68 +10,32 @@ type Field = {
 
 type Input = {
   fields: Field[],
-  yourTicket: number[],
   nearbyTickets: number[][]
 };
 
 export const parse = (input: string[]): Input => {
-  let fields: Field[] = [];
-  let yourTicket: number[] = [];
-  let nearbyTickets: number[][] = [];
+  const lines = input.map(l => l.trim()).filter(l => l !== '' && l !== 'your ticket:' && l !== 'nearby tickets:');
 
-  let state = 0;
-
-  for (let idx = 0; idx < input.length; idx++) {
-    if (input[idx].trim() === '') continue;
-
-    if (input[idx].trim() === 'your ticket:') {
-      state = 1;
-      continue;
-    }
-
-    if (input[idx].trim() === 'nearby tickets:') {
-      state = 2;
-      continue;
-    }
-
-    if (state === 0) {
-      fields.push({
-        name: input[idx].split(':')[0],
-        intervals: input[idx].split(':')[1].trim().split(' or ').map(iv => ({ from: Number(iv.split('-')[0]), to: Number(iv.split('-')[1]) }))
-      });
-    } else if (state === 1) {
-      yourTicket = input[idx].split(/,/g).map(a => Number(a));
-    } else {
-      nearbyTickets.push(input[idx].split(/,/g).map(a => Number(a)));
-    }
-  }
-
-  return { fields, nearbyTickets, yourTicket };
+  return { 
+    fields: lines.filter(l => l.indexOf(':') >= 0).map(l => ({
+      name: l.split(':')[0],
+      intervals: l.split(':')[1].trim().split(' or ').map(iv => ({ from: Number(iv.split('-')[0]), to: Number(iv.split('-')[1]) }))
+    })),
+    nearbyTickets: lines.filter(l => l.indexOf(':') < 0).map(l => l.split(/,/g).map(a => Number(a)))
+  };
 }
 
 export const solve = (input: Input): number => {
-  const validTickets = input.nearbyTickets.filter(ticket => 
-    ticket.every(v => 
-      input.fields.some(f => 
-        f.intervals.some(iv => v >= iv.from && v <= iv.to))));
+  const validFields = input.nearbyTickets[0].map(_ => new Set(input.fields.map(f => f.name)));
 
-  const validFields = validTickets[0].map(_ => new Set(input.fields.map(f => f.name)));
+  const isValid = (v: number, f: Field) => f.intervals.some(iv => v >= iv.from && v <= iv.to)
 
-  for (let fieldIdx = 0; fieldIdx < validTickets[0].length; fieldIdx++) {
-    for (const ticket of validTickets) {
-      const v = ticket[fieldIdx];
-      for (const fn of validFields[fieldIdx]) {
-        const f = input.fields.find(a => a.name == fn)!;
-        if (! f.intervals.some(iv => v >= iv.from && v <= iv.to)) {
-          validFields[fieldIdx].delete(f.name);
-        }
-      }
-    }
-  }
+  input.nearbyTickets.filter(ticket => ticket.every(v => input.fields.some(f => isValid(v, f))))
+    .forEach(ticket => ticket.forEach((v, idx) => input.fields
+      .filter(f => !isValid(v, f))
+      .forEach(f => validFields[idx].delete(f.name))));
 
-
-  let assignment = new Array(validTickets[0].length); 
-
+  const assignment = new Array(input.nearbyTickets[0].length); 
   for (let i = 0; i < assignment.length; i++) {
     const oneIdx = validFields.findIndex(a => a.size === 1);
     assignment[oneIdx] = Array.from(validFields[oneIdx].values())[0]
@@ -82,7 +43,7 @@ export const solve = (input: Input): number => {
     validFields.forEach(vf => vf.delete(assignment[oneIdx]));
   }
 
-  return assignment.reduce((acc, c, idx) => c.startsWith('departure') ? input.yourTicket[idx] * acc : acc, 1)
+  return assignment.reduce((acc, c, idx) => c.startsWith('departure') ? input.nearbyTickets[0][idx] * acc : acc, 1)
 }
 
 
