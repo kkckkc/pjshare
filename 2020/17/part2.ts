@@ -45,18 +45,10 @@ export const solve = (input: Input): number => {
       for (let y = yDim[0]; y <= yDim[1]; y++) {
         for (let z = zDim[0]; z <= zDim[1]; z++) {
           for (let w = wDim[0]; w <= wDim[1]; w++) {
-            const p = enc({x, y, z, w});
+            let activeNeighbours = ort.filter(([xd, yd, zd, wd]) => s.has(enc({ x: x + xd, y: y + yd, z: z + zd, w: w + wd}))).length;
 
-            let activeNeighbours = ort.map(([xd, yd, zd, wd]) => enc({ x: x + xd, y: y + yd, z: z + zd, w: w + wd})).filter(p => s.has(p)).length;
-
-            if (s.has(p)) {
-              if (activeNeighbours === 2 || activeNeighbours === 3) {
-                d.add(p);
-              }
-            } else {
-              if (activeNeighbours === 3) {
-                d.add(p);
-              }
+            if (activeNeighbours === 3 || (s.has(enc({x, y, z, w})) && activeNeighbours === 2)) {
+              d.add(enc({x, y, z, w}));
             }
           }
         }   
