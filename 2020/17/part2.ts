@@ -29,23 +29,42 @@ export const parse = (input: string[]): Input => {
 let ort = cartesianProduct([-1, 0, 1], [-1, 0, 1], [-1, 0, 1], [-1, 0, 1]).filter(a => !a.every(k => k === 0));
 
 export const solve = (input: Input): number => {
-  let xDim = [0, input.w];
-  let yDim = [0, input.h];
-  let zDim = [0, 0];
-  let wDim = [0, 0];
+  let xDim = input.w;
+  let yDim = input.h;
+  let zDim = 0;
+  let wDim = 0;
+
   let s = new Set(input.values);
   for (let i = 0; i < 6; i++) {
     let d: Set<string> = new Set();
-    xDim = [xDim[0] - 1, xDim[1] + 1];
-    yDim = [yDim[0] - 1, yDim[1] + 1];
-    zDim = [zDim[0] - 1, zDim[1] + 1];
-    wDim = [wDim[0] - 1, wDim[1] + 1];
+    xDim++; yDim++; zDim++; wDim++;
 
-    for (let x = xDim[0]; x <= xDim[1]; x++) {
-      for (let y = yDim[0]; y <= yDim[1]; y++) {
-        for (let z = zDim[0]; z <= zDim[1]; z++) {
-          for (let w = wDim[0]; w <= wDim[1]; w++) {
-            let activeNeighbours = ort.filter(([xd, yd, zd, wd]) => s.has(enc({ x: x + xd, y: y + yd, z: z + zd, w: w + wd}))).length;
+    for (let x = -i-1; x <= xDim; x++) {
+      for (let y = -i-1; y <= yDim; y++) {
+        for (let z = -i-1; z <= zDim; z++) {
+          for (let w = -i-1; w <= wDim; w++) {
+            
+            let activeNeighbours = 0;
+            outer:
+              for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                  for (let dz = -1; dz <= 1; dz++) {
+                    for (let dw = -1; dw <= 1; dw++) {
+                      if (dx == 0 && dy == 0 && dz == 0 && dw == 0) {
+                        continue;
+                      }
+
+                      if (s.has(enc({ x: x + dx, y: y + dy, z: z + dz, w: w + dw}))) {
+                        activeNeighbours++;
+                      }
+
+                      if (activeNeighbours > 3) break outer;
+                    }
+                  }
+                }
+              }
+
+//            const activeNeighbours = ort.filter(([xd, yd, zd, wd]) => s.has(enc({ x: x + xd, y: y + yd, z: z + zd, w: w + wd}))).length;
 
             if (activeNeighbours === 3 || (s.has(enc({x, y, z, w})) && activeNeighbours === 2)) {
               d.add(enc({x, y, z, w}));
