@@ -17,17 +17,17 @@ const evalOp = (lv: string, rv: string, op: string): number => {
 
 const solveExpression = (s: string): number => {
   let p;
-  let tokens = fixedPoint(s, (d) => d.replace(/\(([^\)\()]+)\)/g, (_, p1) => solveExpression(p1).toString())).split(' ');
+  let tokens: any[] = fixedPoint(s, (d) => d.replace(/\(([^\)\()]+)\)/g, (_, p1) => solveExpression(p1).toString())).split(' ');
 
   while ((p = tokens.findIndex(t => t === '+')) >= 0) {
-    tokens.splice(p - 1, 3, evalOp(tokens[p - 1], tokens[p + 1], '+').toString());
+    tokens.splice(p - 1, 3, evalOp(tokens[p - 1], tokens[p + 1], '+'));
   }
 
   while ((p = tokens.findIndex(t => t === '*')) >= 0) {
-    tokens.splice(p - 1, 3, evalOp(tokens[p - 1], tokens[p + 1], '*').toString());
+    tokens.splice(p - 1, 3, evalOp(tokens[p - 1], tokens[p + 1], '*'));
   }
 
-  return Number(tokens[0]);
+  return tokens[0];
 }
 
 export const solve = (input: Input): number => {

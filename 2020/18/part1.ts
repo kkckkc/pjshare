@@ -17,13 +17,13 @@ const evalOp = (lv: string, rv: string, op: string): number => {
 
 const solveExpression = (s: string): number => {
   let p;
-  let tokens = fixedPoint(s, (d) => d.replace(/\(([^\)\()]+)\)/g, (_, p1) => solveExpression(p1).toString())).split(' ');
+  let tokens: any[] = fixedPoint(s, (d) => d.replace(/\(([^\)\()]+)\)/g, (_, p1) => solveExpression(p1).toString())).split(' ');
 
   while ((p = tokens.findIndex(t => t === '*' || t === '+')) >= 0) {
-    tokens.splice(p - 1, 3, evalOp(tokens[p - 1], tokens[p + 1], tokens[p]).toString());
+    tokens.splice(p - 1, 3, evalOp(tokens[p - 1], tokens[p + 1], tokens[p]));
   }
 
-  return Number(tokens[0]);
+  return tokens[0];
 }
 
 export const solve = (input: Input): number => {
@@ -31,9 +31,9 @@ export const solve = (input: Input): number => {
 }
 
 
-//console.log(solveExpression('2 + 3 * 2'))
-//console.log(solveExpression('2 * 3 + (4 * 5)'))
-//console.log(solveExpression('5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))'))
+console.log(solveExpression('2 + 3 * 2'))
+console.log(solveExpression('2 * 3 + (4 * 5)'))
+console.log(solveExpression('5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))'))
 console.log(solveExpression('((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2'))
 
 console.log(solve(parse(readFile(__dirname))));
