@@ -14,23 +14,17 @@ export const parse = (input: string[]): Input => {
   })) };
 }
 
-const intersection = (a: Set<string>, b: Set<string>) => new Set([...a].filter(x => b.has(x)));
+const intersection = (a: Set<string>|undefined, b: Set<string>) => a === undefined ? b : new Set([...a].filter(x => b.has(x)));
 
 export const solve = (input: Input): string => {
-  const allergens: Set<string> = new Set();
-  input.values.forEach(r => r.allergens.forEach(a => allergens.add(a)));
+  const allergens: Set<string> = new Set(input.values.flatMap(r => r.allergens));
 
   const p: Record<string, Set<string>> = {};
 
   for (const a of allergens) {
-    for (const v of input.values.filter(v => v.allergens.includes(a))) {
-      const s = p[a];
-      if (s) {
-        p[a] = intersection(p[a], new Set(v.ingredients));
-      } else {
-        p[a] = new Set(v.ingredients);
-      }
-    }
+    p[a] = input.values
+      .filter(v => v.allergens.includes(a))
+      .reduce((acc, c, idx) => intersection(idx === 0 ? undefined : acc, new Set(c.ingredients)), new Set<string>());
   }
 
   const res: Record<string, string> = {};
