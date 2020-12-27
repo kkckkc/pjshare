@@ -19,9 +19,9 @@ export const solve = (input: Input): number => {
 
   let M = arr.length;
 
-  let next = Array(M + 1);
+  let next = new Int32Array(M + 1);
   for (let i = 0; i < M; i++) {
-    next[arr[i]] = arr[(i + 1) % M];
+    next[arr[i]] = arr[(i + 1) % M] || i + 1;
   }
 
   let c = arr[0];
@@ -34,9 +34,9 @@ export const solve = (input: Input): number => {
     next[c] = next[a3];
 
     // Find insertion point
-    let a = c === 1 ? M : c - 1;
+    let a = c - 1 || M;
     while (a1 === a || a2 === a || a3 === a) {
-      a = a === 1 ? M : a - 1;
+      a = a - 1 || M;
     }
 
     // Insert
@@ -53,5 +53,5 @@ export const solve = (input: Input): number => {
 
 console.log(solve(parse(['389125467'])))
 
-console.log(solve(parse(['942387615'])));
+console.log(solve(parse(['942387615'])));  
 //console.log(solve(parse(readFile(__dirname))));
