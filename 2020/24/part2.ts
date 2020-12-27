@@ -1,27 +1,28 @@
-import { assertEquals } from '../../lib/assert';
 import { readFile } from '../../lib/readFile';
-import { range } from '../../lib/arrays';
-import { cartesianProduct, nTuples} from '../../lib/combinatorics';
 
-type Direction = 'e'|'se'|'sw'|'w'|'nw'|'ne';
-
-type Input = {
-  values: Direction[][]
+const DIRECTIONS: Record<string, number[]> = {
+  'se': [1,1],
+  'sw': [1, -1],
+  'nw': [-1, -1],
+  'ne': [-1, 1],
+  'e': [0, 2],
+  'w': [0, -2]
 };
 
-const parseDirections = (s: string): Direction[] => {
-  const d: Direction[] = [];
+type Input = {
+  values: string[][]
+};
+
+const parseDirections = (s: string): string[] => {
+  const d: string[] = [];
   
   let r = s;
 
   while (r.length > 0) {
-    if (r.startsWith('se')) { d.push('se'); r = r.slice(2); }
-    else if (r.startsWith('sw')) { d.push('sw'); r = r.slice(2); }
-    else if (r.startsWith('nw')) { d.push('nw'); r = r.slice(2); }
-    else if (r.startsWith('ne')) { d.push('ne'); r = r.slice(2); }
-    else if (r.startsWith('e')) { d.push('e'); r = r.slice(1); }
-    else if (r.startsWith('w')) { d.push('w'); r = r.slice(1); }
-    else throw new Error(`Cannot parse ${r}`)
+    const dir = Object.keys(DIRECTIONS).find(a => r.startsWith(a));
+    if (! dir) throw new Error(`Cannot parse ${r}`)
+    d.push(dir);
+    r = r.slice(dir.length);
   }
 
   return d;
@@ -30,15 +31,6 @@ const parseDirections = (s: string): Direction[] => {
 export const parse = (input: string[]): Input => {
   return { values: input.map(s => parseDirections(s)) };
 }
-
-const adjacent = [
-  [2, 0], 
-  [1, 1], 
-  [-1, 1],
-  [-2, 0],
-  [-1, -1],
-  [1, -1]
-]
 
 export const solve = (input: Input): number => {
   let blackTiles: Set<string> = new Set();
@@ -50,12 +42,8 @@ export const solve = (input: Input): number => {
     let row = 0, col = 0;
 
     for (const d of line) {
-      if (d === 'e') col += 2;
-      else if (d === 'w') col -= 2;
-      else if (d === 'sw') { col--; row++; }
-      else if (d === 'se') { col++; row++; }
-      else if (d === 'nw') { col--; row--; }
-      else if (d === 'ne') { col++; row--; }
+      row += DIRECTIONS[d][0];
+      col += DIRECTIONS[d][1];
     }
 
     const coord = `${row}:${col}`;
@@ -69,8 +57,8 @@ export const solve = (input: Input): number => {
     maxCol = Math.max(maxCol, Math.abs(col));
   }
 
-  maxRow+=2;
-  maxCol+=2;
+  maxRow+=1;
+  maxCol+=1;
 
   for (let day = 0; day < 100; day++) {
     const newSet: Set<string> = new Set();
@@ -79,7 +67,7 @@ export const solve = (input: Input): number => {
       for (let c = -maxCol; c < maxCol; c++) {
         if (r % 2 === 0 && c % 2 === 1) continue;
 
-        const count = adjacent.map(([x, y]) => [r + y, c + x])
+        const count = Object.values(DIRECTIONS).map(([y, x]) => [r + y, c + x])
           .map(([r, c]) => `${r}:${c}`)
           .filter(coord => blackTiles.has(coord)).length;
 
@@ -94,10 +82,10 @@ export const solve = (input: Input): number => {
       }
     }
 
-    console.log(`Day ${day + 1}: ${newSet.size}`);
+    //console.log(`Day ${day + 1}: ${newSet.size}`);
     blackTiles = newSet;
-    maxRow+=2;
-    maxCol+=2;
+    maxRow+=1;
+    maxCol+=1;
   }
 
   return blackTiles.size;
